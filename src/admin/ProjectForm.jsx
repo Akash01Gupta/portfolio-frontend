@@ -1,7 +1,7 @@
 // src/admin/ProjectForm.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import API from "./api";
+import API from '../services/api';
 
 export default function ProjectForm() {
   const { id } = useParams();
