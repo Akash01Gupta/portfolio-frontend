@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FaReact, FaNodeJs, FaDatabase, FaGithub } from "react-icons/fa";
 import { SiMongodb, SiExpress, SiTailwindcss } from "react-icons/si";
+import api from "../services/api"; // <-- NEW
 
 const skills = [
   { icon: <FaReact size={32} className="text-sky-400" />, name: "React.js" },
@@ -14,12 +15,26 @@ const skills = [
 ];
 
 export default function About() {
+  const [about, setAbout] = useState(null);
+
+  useEffect(() => {
+    const loadAbout = async () => {
+      try {
+        const res = await api.get("/about");
+        setAbout(res.data);
+      } catch (err) {
+        console.log("About load error", err);
+      }
+    };
+
+    loadAbout();
+  }, []);
+
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white px-6 py-16">
-      {/* Animated Glow Background */}
+
       <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-transparent to-purple-900/30 blur-3xl opacity-30"></div>
 
-      {/* About Card */}
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -31,22 +46,20 @@ export default function About() {
           About Me
         </h1>
 
+        {/* Replace static text with backend data if available */}
         <p className="text-lg text-gray-300 leading-relaxed mb-8">
-          👋 Hi, I’m <span className="text-cyan-400 font-semibold">Akash Gupta</span>,
-          a passionate <span className="text-blue-400">Full Stack MERN Developer</span> 
-          with a love for creating modern, fast, and visually appealing web experiences.
-          I enjoy turning complex ideas into elegant, user-friendly products and love working
-          on both the frontend and backend to build complete solutions.
+          {about?.bio1 || (
+            <>
+              👋 Hi, I’m <span className="text-cyan-400 font-semibold">Akash Gupta</span>,
+              a passionate <span className="text-blue-400">Full Stack MERN Developer</span>.
+            </>
+          )}
         </p>
 
         <p className="text-gray-400 mb-8">
-          With hands-on experience in <span className="text-cyan-300">React, Node.js, Express</span>, 
-          and <span className="text-green-300">MongoDB</span>, I’ve built scalable applications, 
-          dashboards, and APIs. I’m constantly learning new technologies and improving my skills
-          to stay up to date with modern development trends.
+          {about?.bio2 || "I build modern web applications and love full-stack development."}
         </p>
 
-        {/* Skills Grid */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

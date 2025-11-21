@@ -1,26 +1,27 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import axios from "axios";
+import api from "../services/api"; // <-- updated
 
 export default function GitHubProjects() {
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
 
- useEffect(() => {
-  async function fetchProjects() {
-    try {
-      const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-      const res = await axios.get(`${apiBase}/projects`);
-      setRepos(res.data);
-    } catch (err) {
-      console.error("Project fetch error:", err);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const res = await api.get("/projects");
+        setRepos(res.data || []);
+      } catch (err) {
+        console.error("Project fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-  }
-  fetchProjects();
-}, []);
+
+    fetchProjects();
+  }, []);
+
 
   if (loading) {
     return (
