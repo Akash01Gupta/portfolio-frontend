@@ -4,16 +4,14 @@ export default function SectionWrapper({ id, title, children }) {
   return (
     <section
       id={id}
-      className="relative w-full py-24 sm:py-32 bg-transparent backdrop-blur-sm border-t border-white/5"
+      className="relative w-full py-16 sm:py-24 bg-black text-white overflow-hidden"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-white/5 pointer-events-none" />
-
       <motion.h2
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        className="text-center text-4xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent mb-16"
+        className="text-center text-3xl sm:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent mb-12"
       >
         {title}
       </motion.h2>

@@ -2,27 +2,25 @@ import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import axios from "axios";
 
-export default function GitHubProjects({ username }) {
+export default function GitHubProjects() {
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    async function fetchRepos() {
-      try {
-        const res = await axios.get(
-          `https://api.github.com/users/${username}/repos?sort=updated`
-        );
-        const filtered = res.data.filter((repo) => !repo.fork && repo.description);
-        setRepos(filtered.slice(0, 6));
-      } catch (err) {
-        console.error("GitHub API error:", err);
-      } finally {
-        setLoading(false);
-      }
+ useEffect(() => {
+  async function fetchProjects() {
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+      const res = await axios.get(`${apiBase}/projects`);
+      setRepos(res.data);
+    } catch (err) {
+      console.error("Project fetch error:", err);
+    } finally {
+      setLoading(false);
     }
-    fetchRepos();
-  }, [username]);
+  }
+  fetchProjects();
+}, []);
 
   if (loading) {
     return (
@@ -37,7 +35,6 @@ export default function GitHubProjects({ username }) {
       ref={containerRef}
       className="relative py-28 px-6 sm:px-12 lg:px-24 overflow-hidden text-center"
     >
-      {/* floating glow background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-cyan-600/10 via-blue-800/5 to-transparent blur-3xl"></div>
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <AnimatedParticles />
@@ -55,24 +52,43 @@ export default function GitHubProjects({ username }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 relative z-10">
         {repos.map((repo, i) => (
-          <MagneticCard key={repo.id} index={i}>
+          <MagneticCard key={repo._id} index={i}>
             <div className="bg-[#020617]/90 rounded-3xl p-6 border border-white/10 shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all duration-500 hover:shadow-[0_0_45px_rgba(56,189,248,0.25)] flex flex-col justify-between">
+
+              {/* Image */}
+              {repo.image && (
+                <img
+                  src={repo.image}
+                  className="rounded-xl mb-5 w-full h-40 object-cover shadow-md"
+                  alt={repo.title}
+                />
+              )}
+
               <div>
                 <h3 className="text-2xl font-semibold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                  {repo.name}
+                  {repo.title}
                 </h3>
+
                 <p className="text-gray-400 text-sm mb-6 line-clamp-3">
                   {repo.description}
                 </p>
               </div>
 
-              <div className="flex justify-between text-gray-400 text-xs mb-4">
-                <span>⭐ {repo.stargazers_count}</span>
-                <span className="px-3 py-1 bg-gradient-to-r from-cyan-700 to-blue-700 rounded-full text-white">
-                  {repo.language || "N/A"}
-                </span>
-              </div>
+              {/* Tags */}
+              {repo.tags?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {repo.tags.map((t, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1 bg-gradient-to-r from-cyan-700 to-blue-700 rounded-full text-white text-xs"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
 
+              {/* Buttons */}
               <div className="flex gap-3">
                 {repo.homepage && (
                   <a
@@ -84,14 +100,17 @@ export default function GitHubProjects({ username }) {
                     Live Demo
                   </a>
                 )}
-                <a
-                  href={repo.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full text-sm text-center py-2 rounded-xl border border-cyan-400 text-cyan-400 hover:bg-cyan-500 hover:text-white font-semibold transition-all"
-                >
-                  GitHub
-                </a>
+
+                {repo.repo && (
+                  <a
+                    href={repo.repo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full text-sm text-center py-2 rounded-xl border border-cyan-400 text-cyan-400 hover:bg-cyan-500 hover:text-white font-semibold transition-all"
+                  >
+                    GitHub
+                  </a>
+                )}
               </div>
             </div>
           </MagneticCard>
@@ -101,7 +120,7 @@ export default function GitHubProjects({ username }) {
   );
 }
 
-/* Magnetic 3D Card Effect */
+/* Magnetic Card */
 function MagneticCard({ children, index }) {
   const ref = useRef(null);
   const x = useMotionValue(0);
@@ -140,7 +159,7 @@ function MagneticCard({ children, index }) {
   );
 }
 
-/* Floating Particle Layer */
+/* Particles */
 function AnimatedParticles() {
   const particles = Array.from({ length: 40 });
   return (

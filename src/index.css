@@ -9,3 +9,11 @@ html {
 body {
   @apply bg-[#020617] text-white font-sans antialiased;
 }
+html, body {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
